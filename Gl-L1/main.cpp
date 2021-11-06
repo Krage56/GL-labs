@@ -6,7 +6,7 @@
 #include <vector>
 
 void drawCircle(float x, float y, float r, int amountSegments, const std::vector<float>& color){
-    float l = 0.1;
+    float l = 0.1;еше
     float _x = 0, _y = 0;
     float a = M_PI * 2 / amountSegments;
     glBegin(GL_TRIANGLE_FAN);
