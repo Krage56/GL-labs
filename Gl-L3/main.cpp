@@ -11,11 +11,97 @@ void drawSolidSphere(GLdouble radius, GLint slices, GLint stacks)
     gluQuadricDrawStyle(shape, GLU_LINE);
 //    gluQuadricDrawStyle(shape, GLU_FILL);
 //    gluQuadricDrawStyle(shape, GLU_POINT);
-//    gluQuadricNormals(shape, GLU_FLAT);
-    gluQuadricNormals(shape, GLU_SMOOTH);
+    gluQuadricNormals(shape, GLU_FLAT);
+//    gluQuadricNormals(shape, GLU_SMOOTH);
     gluSphere(shape, radius, slices, stacks);
 }
+void drawCube(GLfloat size)
+{
+    GLfloat left[] = {
+            -size / 2, -size / 2, -size / 2,
+            -size / 2,  size / 2, -size / 2,
+            -size / 2,  size / 2,  size / 2,
+            -size / 2, -size / 2,  size / 2
+    };
+    GLfloat right[] = {
+            size / 2, -size / 2, -size / 2,
+            size / 2, -size / 2,  size / 2,
+            size / 2,  size / 2,  size / 2,
+            size / 2,  size / 2, -size / 2,
+    };
+    GLfloat bottom[] = {
+            -size / 2, -size / 2, -size / 2,
+            -size / 2, -size / 2,  size / 2,
+            size / 2, -size / 2,  size / 2,
+            size / 2, -size / 2, -size / 2,
+    };
+    GLfloat up[] = {
+            -size / 2, size / 2, -size / 2,
+            -size / 2, size / 2,  size / 2,
+            size / 2, size / 2,  size / 2,
+            size / 2, size / 2, -size / 2,
+    };
+    GLfloat front[] = {
+            -size / 2, -size / 2, -size / 2,
+            size / 2, -size / 2, -size / 2,
+            size / 2,  size / 2, -size / 2,
+            -size / 2,  size / 2, -size / 2,
+    };
+    GLfloat back[] = {
+            -size / 2, -size / 2,  size / 2,
+            size / 2, -size / 2,  size / 2,
+            size / 2,  size / 2,  size / 2,
+            -size / 2,  size / 2,  size / 2,
+    };
+    GLubyte ind[] = {
+            0,1,2,3
+    };
+    glEnableClientState(GL_VERTEX_ARRAY);
+        // левая грань
+        glVertexPointer(3,
+                        GL_FLOAT,
+                        0,
+                        &left);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
 
+        // правая грань
+        glVertexPointer(3,
+                        GL_FLOAT,
+                        0,
+                        &right);
+        glColor3f(1.0f, 0.5f, 0.0f);
+        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
+        // нижняя грань
+        glVertexPointer(3,
+                        GL_FLOAT,
+                        0,
+                        &bottom);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
+        // верхняя грань
+        glVertexPointer(3,
+                        GL_FLOAT,
+                        0,
+                        &up);
+        glColor3f(1.0f, 1.0f, 0.0f);
+        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
+        // задняя грань
+        glVertexPointer(3,
+                        GL_FLOAT,
+                        0,
+                        &back);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
+        // передняя грань
+        glVertexPointer(3,
+                        GL_FLOAT,
+                        0,
+                        &front);
+        glColor3f(1.0f, 0.0f, 1.0f);
+        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
 
 int main(void)
 {
@@ -26,7 +112,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(720, 640, "Второй этап - свет", nullptr, nullptr);
+    window = glfwCreateWindow(720, 640, "Второй этап - кубик", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -36,9 +122,6 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHTING);
-    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
     glEnable(GL_NORMALIZE);
 
     /*Initialize the GLEW library */
@@ -53,8 +136,6 @@ int main(void)
 
     glViewport(0, 0, width, height);
 
-    /*Init the timer*/
-    double prev = glfwGetTime();
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -63,29 +144,9 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor (1, 1, 1, 0.5);
-        GLfloat material_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_diffuse);
-
-        GLfloat light2_diffuse[] = {1, 1, 1};
-
-        GLfloat light2_position[] = {0.0, 0.0, 0.0, 1.0};
-
-        glEnable(GL_LIGHT0);
-
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, light2_diffuse);
-
-        glLightfv(GL_LIGHT0, GL_POSITION, light2_position);
-
-        glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.0);
-
-        glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.2);
-
-        glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.4);
-
-        drawSolidSphere(0.5, 30, 30);
-
-        glDisable(GL_LIGHT0);
+//        glColor3f(0.0f, 1.0f, 0.0f);
+//        drawSolidSphere(0.5, 60, 60);
+        drawCube(0.5);
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
     }
