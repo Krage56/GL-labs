@@ -5,8 +5,24 @@
 #include <iostream>
 #include <cmath>
 
-bool push_cube_facets = false;
+bool push_facets = false;
+bool is_cube = true;
 
+glm::vec3 getNormalVector(GLfloat plane[]){
+    int x = 0, y = 1, z = 2;
+    int first = 0 * 3, second = 1 * 3, third = 2 * 3;
+    glm::vec3 v1(
+            plane[second + x] - plane[first + x],
+            plane[second + y] -  plane[first + y],
+            plane[second + z] - plane[first + z]
+    );
+    glm::vec3 v2(
+            plane[second + x] - plane[third + x],
+            plane[second + y] -  plane[third + y],
+            plane[second + z] - plane[third + z]
+    );
+    return glm::normalize(glm::cross(v1, v2));
+}
 void drawSkeletSphere(GLdouble radius, GLint slices, GLint stacks)
 {
     GLUquadric *shape = gluNewQuadric();
@@ -118,9 +134,110 @@ void drawCube(GLfloat size, bool uncurtain = false)
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
+void drawOctahedron(GLfloat size, bool uncurtain = false)
+{
+    GLfloat left_top[] = {
+            -size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            0.0f, 0.0f, size / sqrtf(3.f),
+            0.0f, sqrtf(2.f)/sqrtf(3.f) * size, 0
+    };
+    GLfloat right_top[] = {
+            size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            0.0f, 0.0f, size / sqrtf(3.f),
+            0.0f, sqrtf(2.f)/sqrtf(3.f) * size, 0
+    };
+    GLfloat left_bottom[] = {
+            -size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            0.0f, 0.0f, size / sqrtf(3.f),
+            0.0f, (-1.f) * sqrtf(2.f)/sqrtf(3.f) * size, 0
+    };
+    GLfloat right_bottom[] = {
+            size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            0.0f, 0.0f, size / sqrtf(3.f),
+            0.0f, (-1.f) * sqrtf(2.f)/sqrtf(3.f) * size, 0
+    };
+    GLfloat front_top[] = {
+            size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            -size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            0.0f, sqrtf(2.f)/sqrtf(3.f) * size, 0
+    };
+    GLfloat front_bottom[] = {
+            size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            -size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
+            0.0f, (-1.f)*sqrtf(2.f)/sqrtf(3.f) * size, 0
+    };
+    if(uncurtain){
+        glm::vec3 front_top_normal = -0.1f * getNormalVector(front_top);
+        glm::vec3 front_bottom_normal = 0.1f * getNormalVector(front_bottom);
+        glm::vec3 right_top_normal = 0.1f * getNormalVector(right_top);
+        glm::vec3 left_top_normal = -0.1f * getNormalVector(left_top);
+        glm::vec3 right_bottom_normal = -0.1f * getNormalVector(right_bottom);
+        glm::vec3 left_bottom_normal = 0.1f * getNormalVector(left_bottom);
+        for (int i = 0; i < 9; ++i){
+            front_top[i] += front_top_normal[i % 3];
+            front_bottom[i] += front_bottom_normal[i % 3];
+            right_top[i] += right_top_normal[i % 3];
+            left_top[i] += left_top_normal[i % 3];
+            right_bottom[i] += right_bottom_normal[i % 3];
+            left_bottom[i] += left_bottom_normal[i % 3];
+        }
+    }
+
+    GLubyte ind[] = {
+            0,1,2
+    };
+    glEnableClientState(GL_VERTEX_ARRAY);
+    // левая верхняя грань
+    glVertexPointer(3,
+                    GL_FLOAT,
+                    0,
+                    &left_top);
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+
+    // правая верхняя грань
+    glVertexPointer(3,
+                    GL_FLOAT,
+                    0,
+                    &right_top);
+    glColor3f(1.0f, 0.5f, 0.0f);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+    // левая нижняя грань
+    glVertexPointer(3,
+                    GL_FLOAT,
+                    0,
+                    &left_bottom);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+    // правая нижняя грань
+    glVertexPointer(3,
+                    GL_FLOAT,
+                    0,
+                    &right_bottom);
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+    // передняя верхняя грань
+    glVertexPointer(3,
+                    GL_FLOAT,
+                    0,
+                    &front_top);
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+    // передняя нижняя грань
+    glVertexPointer(3,
+                    GL_FLOAT,
+                    0,
+                    &front_bottom);
+    glColor3f(1.0f, 0.0f, 1.0f);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
 void checkButton (GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ENTER && action == GLFW_PRESS){
-        push_cube_facets = ! push_cube_facets;
+        push_facets = ! push_facets;
+    }
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS){
+        is_cube = ! is_cube;
     }
 }
 int main(void)
@@ -132,7 +249,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(720, 640, "Второй этап - кубик", nullptr, nullptr);
+    window = glfwCreateWindow(720, 640, "Лабораторная №3", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -189,10 +306,9 @@ int main(void)
         glPopMatrix();
 
         glPushMatrix();
-            glRotatef(3*M_PI/2.0f + angel * 10, 1,1,1);
-            drawCube(0.5, push_cube_facets);
+        glRotatef(3*M_PI/2.0f + angel * 20, 1,1,1);
+            is_cube? drawCube(0.5, push_facets) : drawOctahedron(0.5, push_facets);
         glPopMatrix();
-
 
         /* Swap front and back buffers */
         glDisable(GL_LIGHT0);
