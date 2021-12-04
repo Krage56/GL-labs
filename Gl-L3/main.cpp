@@ -1,11 +1,12 @@
 /* OpenGL libs */
 #include <GL/glew.h>
 #include "GLFW/glfw3.h"
+#include <glm/glm.hpp>
 #include <iostream>
 #include <cmath>
 #include <vector>
 
-void drawSolidSphere(GLdouble radius, GLint slices, GLint stacks)
+void drawSkeletSphere(GLdouble radius, GLint slices, GLint stacks)
 {
     GLUquadric *shape = gluNewQuadric();
     gluQuadricDrawStyle(shape, GLU_LINE);
@@ -123,7 +124,7 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glEnable(GL_NORMALIZE);
-
+    glEnable(GL_DEPTH_TEST);
     /*Initialize the GLEW library */
     if(glewInit() != GLEW_OK)
     {
@@ -135,7 +136,8 @@ int main(void)
     glfwGetFramebufferSize(window, &width, &height);
 
     glViewport(0, 0, width, height);
-
+    GLfloat angel = 0.0f;
+    double prev = glfwGetTime();
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -143,10 +145,22 @@ int main(void)
         glfwPollEvents();
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor (1, 1, 1, 0.5);
-//        glColor3f(0.0f, 1.0f, 0.0f);
-//        drawSolidSphere(0.5, 60, 60);
-        drawCube(0.5);
+        if(glfwGetTime() - prev >= 1.0f/20){
+            angel += (M_PI / 100.0f);
+            prev = glfwGetTime();
+        }
+        glPushMatrix();
+            glTranslatef(0.7 * cosf(angel), 0, 0.7 * sinf(angel));
+            glColor3f(1.0f, 1.0f, 1.0f);
+        drawSkeletSphere(0.1, 20, 20);
+        glPopMatrix();
+
+        glPushMatrix();
+            glRotatef(3*M_PI/2.0f + angel * 10, 1,1,1);
+            drawCube(0.5);
+        glPopMatrix();
+
+
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
     }
