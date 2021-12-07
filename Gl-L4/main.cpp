@@ -190,6 +190,11 @@ void drawCube(GLfloat size, bool uncurtain = false)
 }
 void drawOctahedron(GLfloat size, bool uncurtain = false)
 {
+    GLfloat tex[] = {
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            0.5f, 1.0f
+    };
     GLfloat left_top[] = {
             -size/2, 0.0f, -size / (2.0f * sqrtf(3.0f)),
             0.0f, 0.0f, size / sqrtf(3.f),
@@ -240,7 +245,12 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
     GLubyte ind[] = {
             0,1,2
     };
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[0]);
+    else
+        glBindTexture(GL_TEXTURE_2D, 0);
     // левая верхняя грань
     glVertexPointer(3,
                     GL_FLOAT,
@@ -249,6 +259,8 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
     glColor3f(0.0f, 1.0f, 0.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
 
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[1]);
     // правая верхняя грань
     glVertexPointer(3,
                     GL_FLOAT,
@@ -256,12 +268,18 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     &right_top);
     glColor3f(1.0f, 0.5f, 0.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[2]);
     // левая нижняя грань
     glVertexPointer(3,
                     GL_FLOAT,
                     0,
                     &left_bottom);
     glColor3f(1.0f, 0.0f, 0.0f);
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[3]);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
     // правая нижняя грань
     glVertexPointer(3,
@@ -270,6 +288,9 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     &right_bottom);
     glColor3f(1.0f, 1.0f, 0.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[4]);
     // передняя верхняя грань
     glVertexPointer(3,
                     GL_FLOAT,
@@ -277,6 +298,9 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     &front_top);
     glColor3f(0.0f, 0.0f, 1.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[5]);
     // передняя нижняя грань
     glVertexPointer(3,
                     GL_FLOAT,
