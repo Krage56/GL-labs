@@ -4,11 +4,36 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <cmath>
+#include <vector>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 bool push_facets = false;
 bool is_cube = true;
+bool enable_tex = true;
+GLuint  texture_names[6];
 
+void setTextures(const std::vector<std::string>& files){
+    int im_width, im_height, nrChannels;
+    uint i = 0;
+    for (const auto & file : files){
+        glBindTexture(GL_TEXTURE_2D, texture_names[i]);
+            unsigned char *data = stbi_load(file.c_str(), &im_width, &im_height,
+                                            &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, im_width, im_height,
+                         0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+        else
+        {
+            std::cerr << "Failed to load texture" << std::endl;
+        }
+            stbi_image_free(data);
+        ++i;
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
 glm::vec3 getNormalVector(GLfloat plane[]){
     int x = 0, y = 1, z = 2;
     int first = 0 * 3, second = 1 * 3, third = 2 * 3;
@@ -33,6 +58,7 @@ void drawSkeletSphere(GLdouble radius, GLint slices, GLint stacks)
 }
 void drawCube(GLfloat size, bool uncurtain = false)
 {
+
     GLfloat tex[] = {
                 0.0f, 1.0f,
                 1.0f, 1.0f,
@@ -97,7 +123,11 @@ void drawCube(GLfloat size, bool uncurtain = false)
     };
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
-        // левая грань
+        if(enable_tex)
+            glBindTexture(GL_TEXTURE_2D, texture_names[0]);
+        else
+            glBindTexture(GL_TEXTURE_2D, 0);
+    // левая грань
         glVertexPointer(3,
                         GL_FLOAT,
                         0,
@@ -106,35 +136,49 @@ void drawCube(GLfloat size, bool uncurtain = false)
         glColor3f(0.0f, 1.0f, 0.0f);
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
 
-        // правая грань
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[1]);
+    // правая грань
         glVertexPointer(3,
                         GL_FLOAT,
                         0,
                         &right);
         glColor3f(1.0f, 0.5f, 0.0f);
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
-        // нижняя грань
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[2]);
+    // нижняя грань
         glVertexPointer(3,
                         GL_FLOAT,
                         0,
                         &bottom);
         glColor3f(1.0f, 0.0f, 0.0f);
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
-        // верхняя грань
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[3]);
+    // верхняя грань
         glVertexPointer(3,
                         GL_FLOAT,
                         0,
                         &up);
         glColor3f(1.0f, 1.0f, 0.0f);
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
-        // задняя грань
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[4]);
+    // задняя грань
         glVertexPointer(3,
                         GL_FLOAT,
                         0,
                         &back);
         glColor3f(0.0f, 0.0f, 1.0f);
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
-        // передняя грань
+
+    if(enable_tex)
+        glBindTexture(GL_TEXTURE_2D, texture_names[5]);
+    // передняя грань
         glVertexPointer(3,
                         GL_FLOAT,
                         0,
@@ -249,6 +293,9 @@ void checkButton (GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_1 && action == GLFW_PRESS){
         is_cube = ! is_cube;
     }
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS){
+        enable_tex = ! enable_tex;
+    }
 }
 int main(void)
 {
@@ -282,24 +329,16 @@ int main(void)
         std::cout << "GLEW initialization error" << std::endl;
         return -1;
     }
-    GLuint tex_name;
-    glGenTextures(1, &tex_name);
-    glBindTexture(GL_TEXTURE_2D, tex_name);
-
-    int im_width, im_height, nrChannels;
-    unsigned char *data = stbi_load("./corgi.png", &im_width, &im_height,
-                                    &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, im_width, im_height,
-                     0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+    glGenTextures(6, texture_names);
+    std::vector<std::string> v = {
+            std::string("./corgi.png"),
+            std::string("./pusheen.png"),
+            std::string("./many_corgies.png"),
+            std::string("./garfidl.png"),
+            std::string("./owl.png"),
+            std::string("./best.png")
+    };
+    setTextures(v);
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
