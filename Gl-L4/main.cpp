@@ -33,6 +33,12 @@ void drawSkeletSphere(GLdouble radius, GLint slices, GLint stacks)
 }
 void drawCube(GLfloat size, bool uncurtain = false)
 {
+    GLfloat tex[] = {
+                0.0f, 1.0f,
+                1.0f, 1.0f,
+                1.0f, 0.0f,
+                0.0f, 0.0f
+    };
     GLfloat left[] = {
             -size / 2, -size / 2, -size / 2,
             -size / 2,  size / 2, -size / 2,
@@ -89,12 +95,14 @@ void drawCube(GLfloat size, bool uncurtain = false)
     GLubyte ind[] = {
             0,1,2,3
     };
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
         // левая грань
         glVertexPointer(3,
                         GL_FLOAT,
                         0,
                         &left);
+        glTexCoordPointer(2, GL_FLOAT, 0, &tex);
         glColor3f(0.0f, 1.0f, 0.0f);
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
 
@@ -134,6 +142,7 @@ void drawCube(GLfloat size, bool uncurtain = false)
         glColor3f(1.0f, 0.0f, 1.0f);
         glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
     glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 void drawOctahedron(GLfloat size, bool uncurtain = false)
 {
@@ -261,10 +270,10 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glEnable(GL_NORMALIZE);
-//    glEnable(GL_LIGHTING);
-//    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-//    glEnable(GL_COLOR_MATERIAL);
-//    glMateriali(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, 0);
+    glEnable(GL_LIGHTING);
+    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+    glEnable(GL_COLOR_MATERIAL);
+    glMateriali(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, 0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     /*Initialize the GLEW library */
@@ -305,7 +314,7 @@ int main(void)
         glfwPollEvents();
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        /*GLfloat light_diffuse[] = {1,0.5,1};
+        GLfloat light_diffuse[] = {1,0.5,1};
         if(glfwGetTime() - prev >= 1.0f/20){
             angel += (M_PI / 100.0f);
             prev = glfwGetTime();
@@ -329,31 +338,7 @@ int main(void)
         glRotatef(3*M_PI/2.0f + angel * 20, 1,1,1);
             is_cube? drawCube(0.5, push_facets) : drawOctahedron(0.5, push_facets);
         glPopMatrix();
-
-        glDisable(GL_LIGHT0);*/
-        GLubyte ind[] = {
-                0,1,2,3
-        };
-        GLfloat size = 0.5f;
-        GLfloat front[] = {
-                -size / 2, -size / 2, -size / 2,
-                size / 2, -size / 2, -size / 2,
-                size / 2,  size / 2, -size / 2,
-                -size / 2,  size / 2, -size / 2,
-        };
-        GLfloat tex[] = {
-                0.0f, 1.0f,
-                1.0f, 1.0f,
-                1.0f, 0.0f,
-                0.0f, 0.0f,
-        };
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_VERTEX_ARRAY);
-            glVertexPointer(3, GL_FLOAT, 0, &front);
-            glTexCoordPointer(2, GL_FLOAT, 0, &tex);
-            glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, &ind);
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisable(GL_LIGHT0);
         glfwSwapBuffers(window);
     }
     glfwTerminate();
