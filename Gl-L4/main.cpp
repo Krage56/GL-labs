@@ -256,6 +256,7 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     GL_FLOAT,
                     0,
                     &left_top);
+    glTexCoordPointer(2, GL_FLOAT, 0, &tex);
     glColor3f(0.0f, 1.0f, 0.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
 
@@ -266,6 +267,7 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     GL_FLOAT,
                     0,
                     &right_top);
+    glTexCoordPointer(2, GL_FLOAT, 0, &tex);
     glColor3f(1.0f, 0.5f, 0.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
 
@@ -276,6 +278,7 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     GL_FLOAT,
                     0,
                     &left_bottom);
+    glTexCoordPointer(2, GL_FLOAT, 0, &tex);
     glColor3f(1.0f, 0.0f, 0.0f);
 
     if(enable_tex)
@@ -286,6 +289,7 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     GL_FLOAT,
                     0,
                     &right_bottom);
+    glTexCoordPointer(2, GL_FLOAT, 0, &tex);
     glColor3f(1.0f, 1.0f, 0.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
 
@@ -296,6 +300,7 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     GL_FLOAT,
                     0,
                     &front_top);
+    glTexCoordPointer(2, GL_FLOAT, 0, &tex);
     glColor3f(0.0f, 0.0f, 1.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
 
@@ -306,6 +311,7 @@ void drawOctahedron(GLfloat size, bool uncurtain = false)
                     GL_FLOAT,
                     0,
                     &front_bottom);
+    glTexCoordPointer(2, GL_FLOAT, 0, &tex);
     glColor3f(1.0f, 0.0f, 1.0f);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, &ind);
     glDisableClientState(GL_VERTEX_ARRAY);
